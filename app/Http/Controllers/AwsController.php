@@ -67,6 +67,6 @@ class AwsController extends Controller
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()]);
         }
-        return response()->json(['message' => 'images saved successfully', 'nombre' => $fileName]);
+        return response()->json(['message' => 'images saved successfully']);
     }
 }
