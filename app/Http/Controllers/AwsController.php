@@ -15,10 +15,7 @@ class AwsController extends Controller
     {
         $this->client = $client;
     }
-
-
-
-
+    // como fotografo enviar y preguntar el usuario  y luego sacar id para mandarle
     public function getAllMatchesImagees(Request $request)
     {
         $nameExternalId = collect();
@@ -45,11 +42,14 @@ class AwsController extends Controller
 
         $images = $request->file('images');
         $folder = $request->input('folder');
+        $urls = []; // inicializa arreglo vacío
 
         try {
             foreach ($images as $image) {
                 $fileName = $image->getClientOriginalName();
                 Storage::disk('s3')->put($folder . '/' . $fileName, file_get_contents($image));
+                $url = Storage::disk('s3')->url($folder . '/' . $fileName); // obtén la URL de la imagen guardada
+                array_push($urls, $url); // agrega la URL al arreglo
                 $this->client->indexFaces(
                     [
                         'CollectionId' => $folder,
@@ -67,6 +67,7 @@ class AwsController extends Controller
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()]);
         }
-        return response()->json(['message' => 'images saved successfully']);
+        return response()->json(['urls' => $urls]); // devuelve el arreglo de URLs en la respuesta JSON
+
     }
 }
